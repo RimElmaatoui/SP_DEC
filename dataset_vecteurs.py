@@ -79,7 +79,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
                            epoch)
 
     # Charger les datasets
-    train_csv = 'C:/Users/Lenovo/Desktop/Deduplication/vectors_melange.csv'
+    train_csv = r'C:\Users\Lenovo\Desktop\DEC\vectors_melange.csv'
     ds_train = CSVTextDataset(csv_file=train_csv, cuda=cuda)
     ds_val = CSVTextDataset(csv_file=train_csv, cuda=cuda)  # Même dataset pour validation
 
