@@ -79,7 +79,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
                            epoch)
 
     # Charger les datasets
-    train_csv = 'DEC/vectors_melange.csv'
+    train_csv = 'vectors_melange.csv'
     ds_train = CSVTextDataset(csv_file=train_csv, cuda=cuda)
     ds_val = CSVTextDataset(csv_file=train_csv, cuda=cuda)  # Même dataset pour validation
 
@@ -174,7 +174,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     for (vector, identifiant), cluster_id in zip(ds_train, predicted):
         clusters.setdefault(cluster_id, []).append(identifiant)
 
-    output_csv = 'DEC/clusters_nouveaux_10.csv'
+    output_csv = 'clusters_nouveaux_10_DEC.csv'
     with open(output_csv, 'w', newline='') as csvfile:
         writer_csv = csv.writer(csvfile)
         writer_csv.writerow(['Cluster', 'Identifiants'])
