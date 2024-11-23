@@ -74,19 +74,19 @@ def train(
     kmeans = KMeans(n_clusters=model.cluster_number, n_init=20)
     model.train()
     features = []
-    actual = []
+    #actual = []
     # form initial cluster centres
     for index, batch in enumerate(data_iterator):
         if (isinstance(batch, tuple) or isinstance(batch, list)) and len(batch) == 2:
             batch, value = batch  # if we have a prediction label, separate it to actual
-            actual.append(value)
+            #actual.append(value)
         if cuda:
             batch = batch.cuda(non_blocking=True)
         features.append(model.encoder(batch).detach().cpu())
-    actual = torch.cat(actual).long()
+    #actual = torch.cat(actual).long()
     predicted = kmeans.fit_predict(torch.cat(features).numpy())
     predicted_previous = torch.tensor(np.copy(predicted), dtype=torch.long)
-    _, accuracy = cluster_accuracy(predicted, actual.cpu().numpy())
+    #_, accuracy = cluster_accuracy(predicted, actual.cpu().numpy())
     cluster_centers = torch.tensor(
         kmeans.cluster_centers_, dtype=torch.float, requires_grad=True
     )
@@ -95,7 +95,7 @@ def train(
     with torch.no_grad():
         # initialise the cluster centers
         model.state_dict()["assignment.cluster_centers"].copy_(cluster_centers)
-    loss_function = nn.KLDivLoss(size_average=False)
+    loss_function = nn.KLDivLoss(reduction='sum')
     delta_label = None
     for epoch in range(epochs):
         features = []
@@ -105,7 +105,7 @@ def train(
             unit="batch",
             postfix={
                 "epo": epoch,
-                "acc": "%.4f" % (accuracy or 0.0),
+                #"acc": "%.4f" % (accuracy or 0.0),
                 "lss": "%.8f" % 0.0,
                 "dlb": "%.4f" % (delta_label or 0.0),
             },
@@ -124,7 +124,7 @@ def train(
             loss = loss_function(output.log(), target) / output.shape[0]
             data_iterator.set_postfix(
                 epo=epoch,
-                acc="%.4f" % (accuracy or 0.0),
+                #acc="%.4f" % (accuracy or 0.0),
                 lss="%.8f" % float(loss.item()),
                 dlb="%.4f" % (delta_label or 0.0),
             )
@@ -136,42 +136,45 @@ def train(
                 loss_value = float(loss.item())
                 data_iterator.set_postfix(
                     epo=epoch,
-                    acc="%.4f" % (accuracy or 0.0),
+                    #acc="%.4f" % (accuracy or 0.0),
                     lss="%.8f" % loss_value,
                     dlb="%.4f" % (delta_label or 0.0),
                 )
                 if update_callback is not None:
-                    update_callback(accuracy, loss_value, delta_label)
-        predicted, actual = predict(
+                    update_callback( loss_value, delta_label)
+        predicted = predict(
             dataset,
             model,
             batch_size=evaluate_batch_size,
             collate_fn=collate_fn,
             silent=True,
-            return_actual=True,
+            return_actual=False,
             cuda=cuda,
         )
         delta_label = (
             float((predicted != predicted_previous).float().sum().item())
             / predicted_previous.shape[0]
         )
+        """
         if stopping_delta is not None and delta_label < stopping_delta:
             print(
                 'Early stopping as label delta "%1.5f" less than "%1.5f".'
                 % (delta_label, stopping_delta)
             )
             break
+        """
         predicted_previous = predicted
-        _, accuracy = cluster_accuracy(predicted.cpu().numpy(), actual.cpu().numpy())
+        #_, accuracy = cluster_accuracy(predicted.cpu().numpy(), actual.cpu().numpy())
         data_iterator.set_postfix(
             epo=epoch,
-            acc="%.4f" % (accuracy or 0.0),
+            #acc="%.4f" % (accuracy or 0.0),
             lss="%.8f" % 0.0,
             dlb="%.4f" % (delta_label or 0.0),
         )
         if epoch_callback is not None:
             epoch_callback(epoch, model)
 
+    
 
 def predict(
     dataset: torch.utils.data.Dataset,
@@ -180,7 +183,7 @@ def predict(
     collate_fn=default_collate,
     cuda: bool = True,
     silent: bool = False,
-    return_actual: bool = False,
+    return_actual: bool = True,
 ) -> Union[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
     """
     Predict clusters for a dataset given a DEC model instance and various configuration parameters.
