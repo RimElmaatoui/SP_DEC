@@ -84,7 +84,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     ds_val = CSVTextDataset(csv_file=train_csv, cuda=cuda)  # Même dataset pour validation
 
     # Vérifier les données
-    print(ds_train[0])  # Affiche le premier élément du dataset
+    #print(ds_train[0])  # Affiche le premier élément du dataset
 
     # Définir les dimensions de l'autoencodeur
     autoencoder_dimensions = [384, 256, hidden_dimension]
@@ -143,7 +143,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
 
     # DEC stage (Clustering)
     print("Clustering avec DEC.")
-    model = DEC(cluster_number=clusters, hidden_dimension=autoencoder_dimensions[-1], encoder=autoencoder.encoder)
+    model = DEC(cluster_number=clusters, hidden_dimension=autoencoder_dimensions[-1], encoder=autoencoder.encode)
     if cuda:
         model.cuda()
 
