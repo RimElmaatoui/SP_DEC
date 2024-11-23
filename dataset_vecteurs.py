@@ -87,7 +87,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     print(ds_train[0])  # Affiche le premier élément du dataset
 
     # Définir les dimensions de l'autoencodeur
-    autoencoder_dimensions = [512, 256, hidden_dimension]
+    autoencoder_dimensions = [384, 256, hidden_dimension]
 
     # Initialiser l'autoencodeur
     autoencoder = AutoEncoder(
