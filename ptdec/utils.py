@@ -3,6 +3,8 @@ import torch
 from typing import Optional
 from scipy.optimize import linear_sum_assignment
 
+import torch.nn.functional as F
+
 
 def cluster_accuracy(y_true, y_predicted, cluster_number: Optional[int] = None):
     """
@@ -38,3 +40,16 @@ def target_distribution(batch: torch.Tensor) -> torch.Tensor:
     """
     weight = (batch ** 2) / torch.sum(batch, 0)
     return (weight.t() / torch.sum(weight, 1)).t()
+
+
+
+def jensen_shannon_divergence(p: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
+    """
+    Calcule la divergence de Jensen-Shannon entre deux distributions.
+    :param p: Tensor représentant une distribution (batch_size, num_clusters).
+    :param q: Tensor représentant une distribution (batch_size, num_clusters).
+    :return: La divergence JS calculée.
+    """
+    m = 0.5 * (p + q)
+    return 0.5 * F.kl_div(p.log(), m, reduction='batchmean') + 0.5 * F.kl_div(q.log(), m, reduction='batchmean')
+

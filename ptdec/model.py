@@ -6,7 +6,7 @@ from torch.utils.data.dataloader import DataLoader, default_collate
 from typing import Tuple, Callable, Optional, Union
 from tqdm import tqdm
 
-from ptdec.utils import target_distribution, cluster_accuracy
+from ptdec.utils import target_distribution, cluster_accuracy , jensen_shannon_divergence
 
 
 def train(
@@ -95,7 +95,7 @@ def train(
     with torch.no_grad():
         # initialise the cluster centers
         model.state_dict()["assignment.cluster_centers"].copy_(cluster_centers)
-    loss_function = nn.KLDivLoss(reduction='sum')
+    #loss_function = nn.KLDivLoss(reduction='sum')
     delta_label = None
     for epoch in range(epochs):
         features = []
@@ -121,7 +121,7 @@ def train(
                 batch = batch.cuda(non_blocking=True)
             output = model(batch)
             target = target_distribution(output).detach()
-            loss = loss_function(output.log(), target) / output.shape[0]
+            loss = jensen_shannon_divergence(output, target) / output.shape[0]
             data_iterator.set_postfix(
                 epo=epoch,
                 #acc="%.4f" % (accuracy or 0.0),

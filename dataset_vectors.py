@@ -174,7 +174,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     for (vector, identifiant), cluster_id in zip(ds_train, predicted):
         clusters.setdefault(cluster_id, []).append(identifiant)
 
-    output_csv = 'clusters_nouveaux_10_DEC.csv'
+    output_csv = 'clusters_nouveaux_10_DEC_SL.csv'
     with open(output_csv, 'w', newline='') as csvfile:
         writer_csv = csv.writer(csvfile)
         writer_csv.writerow(['Cluster', 'Identifiants'])
