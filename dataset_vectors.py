@@ -100,7 +100,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
         autoencoder.cuda()
 
     # Définir l'optimiseur et la fonction de perte
-    optimizer = Adam(autoencoder.parameters(), lr=1e-3)     #0.001
+    optimizer = Adam(autoencoder.parameters(), lr=0.01)     #0.001  #1e-3
     scheduler = StepLR(optimizer, step_size=100, gamma=0.1)
 
     # Normaliser les données
@@ -147,7 +147,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     if cuda:
         model.cuda()
 
-    dec_optimizer = SGD(model.parameters(), lr=1e-3, momentum=0.9)   #0.01
+    dec_optimizer = SGD(model.parameters(), lr=0.01, momentum=0.9)   #1e-3
     start_time = time.time()
     train(
         dataset=ds_train,
@@ -174,7 +174,7 @@ def main(cuda, batch_size, pretrain_epochs, finetune_epochs, hidden_dimension, c
     for (vector, identifiant), cluster_id in zip(ds_train, predicted):
         clusters.setdefault(cluster_id, []).append(identifiant)
 
-    output_csv = 'clusters_nouveaux_10_DEC_SL.csv'
+    output_csv = 'clusters_nouveaux_10_DEC_JS_0.01.csv'
     with open(output_csv, 'w', newline='') as csvfile:
         writer_csv = csv.writer(csvfile)
         writer_csv.writerow(['Cluster', 'Identifiants'])
